@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rust Blog CRUD</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      input,
+      textarea {
+        width: 300px;
+        margin-bottom: 10px;
+        display: block;
+      }
+      button {
+        margin-bottom: 20px;
+      }
+      .post {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rust Blog</h1>
+
+    <h2>Create Post</h2>
+    <input type="text" id="title" placeholder="Title" />
+    <textarea id="content" placeholder="Content"></textarea>
+    <button onclick="createPost()">Create Post</button>
+
+    <h2>All Posts</h2>
+    <div id="posts"></div>
+
+    <script>
+      const API_URL = "http://localhost:3000/posts";
+
+      // Fetch and display all posts
+      async function fetchPosts() {
+        const res = await fetch(API_URL);
+        const posts = await res.json();
+        const container = document.getElementById("posts");
+        container.innerHTML = "";
+
+        posts.forEach((post) => {
+          const div = document.createElement("div");
+          div.className = "post";
+          div.innerHTML = `
+          <strong>${post.title}</strong> <br>
+          <p>${post.content}</p>
+          <button onclick="deletePost('${post.id}')">Delete</button>
+        `;
+          container.appendChild(div);
+        });
+      }
+
+      // Create a new post
+      async function createPost() {
+        const title = document.getElementById("title").value;
+        const content = document.getElementById("content").value;
+
+        if (!title || !content) {
+          alert("Title and content are required");
+          return;
+        }
+
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content }),
+        });
+
+        if (res.ok) {
+          document.getElementById("title").value = "";
+          document.getElementById("content").value = "";
+          fetchPosts(); // refresh
+        } else {
+          alert("Failed to create post");
+        }
+      }
+
+      // Delete a post
+      async function deletePost(id) {
+        const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          fetchPosts(); // refresh
+        } else {
+          alert("Failed to delete post");
+        }
+      }
+
+      // Initial fetch
+      fetchPosts();
+    </script>
+  </body>
+</html>
