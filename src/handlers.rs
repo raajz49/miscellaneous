@@ -30,12 +30,12 @@ pub async fn get_post(
 // POST /posts - create a new post
 pub async fn create_post(
     State(db): State<Db>,
-    Json(payload): Json<CreatePost>, // ⚠️ Change from BlogPost to CreatePost
+    Json(payload): Json<CreatePost>,
 ) -> Json<BlogPost> {
     let mut posts = db.lock().unwrap();
 
     let post = BlogPost {
-        id: Uuid::new_v4(),       // ⚡ Generate UUID here
+        id: Uuid::new_v4(),       //  Generate UUID here
         title: payload.title,
         content: payload.content,
     };
